@@ -1,45 +1,59 @@
-# teamnougat_task_1
+# TeamNougat – Task 1: Student Record Management System
 
-# Working video and screenshots: 
-"https://drive.google.com/drive/folders/1Sv6GZVCycXRWyPTc3z_SthsVPpmuft0I?usp=sharing"
+## Demo (Video and Screenshots)
 
-# Basic Overview:
+Access the working demo and screenshots here:
+[Google Drive - Demo Folder](https://drive.google.com/drive/folders/1Sv6GZVCycXRWyPTc3z_SthsVPpmuft0I?usp=sharing)
 
-The task given was to create a student record management based on video provided on whatsapp video 
-which gave basic UI structure and function understanding.
+---
 
-I started with the main file and added the firebase database initialization to it as well as the 
-sign-up page code is written in the main file.
+## Project Overview
 
-Then, I made the login page for authorization in a different file named login_page.
-Home page and its functions are added in home_page file.
+The objective of this project was to develop a **Student Record Management System**, based on a reference UI and functional demo shared via WhatsApp. The application features account authentication and CRUD operations on student data, all powered by Firebase.
 
-# I improved the UI by adding a pop-up table feature in the home page which increases readability and replaced the logout button in profile icon of appbar.
+### Key Development Steps:
 
-# App description:
+* Initialized Firebase within the main project file and implemented the user **sign-up functionality**.
+* Created a separate file `login_page.dart` to handle **user login and authentication**.
+* Designed a `home_page.dart` for the **main dashboard**, implementing all core student record operations.
+* Enhanced UI/UX by:
 
-1. It takes user email and password as inputs for creating a user account. It stores data into 
-   firebase database online.
-2. The data is used for login and authorization in login page. The password is shown encrypted by 
-   default but can viewed by using the eye button.
-3. Once login credentials are verified, the user is redirected to the home page.
-4. A button is given in the form of text in case, the user directly wants to jump to login page in 
-   case, he has already created an account. He can also go back to sign-up page in case he wants to 
-   create a new account.
-5. once in the homepage, user is shown login info by using the profile button in the appbar. Below, 
-   the login details there is also a logout button which leads to login page.
-6. In the Homepage, There are four detail fields for every student which include name, roll number,
-   branch and CGPA. One needs to give information of each field in order to save student info. Once 
-   information is filled, press on "Create" button to save and create a new entry in the table.
-7. You can press on "Read" button to see all the entries in the table.
-8. In case, one wants to update student information, one can give credentials changed in the fields
-   and press "Update" to change information in the table. Remember, The app uses roll no. as the 
-   identifier for updating the information, so be careful while entering roll no. during student 
-   profile creation.
-9. In case, you want to delete a student information in the table, you can give credentials of the 
-   student and press "Delete" to delete the information.
+   * Introducing a **popup table view** for improved data readability.
+   * Replacing the traditional logout button with a **profile icon dropdown** in the AppBar.
 
-# Techonology used: Firebase online database, In-built Gemini in Android Studio. Various youtube videos and online sites. 
-# Cursor AI for debugging Update function and user sign-up authorization.
+---
 
+## Application Features
 
+1. **User Authentication**
+
+   * Users can register with an email and password.
+   * Credentials are stored securely in Firebase.
+   * Password visibility can be toggled using an eye icon.
+
+2. **Navigation**
+
+   * Existing users can switch directly to the login page.
+   * New users can navigate back to the sign-up page.
+
+3. **Home Page Dashboard**
+
+   * Displays user login info accessible via a profile icon in the AppBar.
+   * Logout option is available in the dropdown menu.
+
+4. **Student Record Operations**
+
+   * Four fields: **Name**, **Roll Number**, **Branch**, and **CGPA**.
+   * `Create`: Add new student record.
+   * `Read`: Display all student records in a structured table.
+   * `Update`: Modify existing student details based on **Roll Number** (used as a unique identifier).
+   * `Delete`: Remove a student record using the roll number.
+
+---
+
+## Technologies Used
+
+* **Firebase** – Cloud-based backend for user authentication and data storage
+* **Android Studio** – IDE with in-built Gemini assistant for coding support
+* **YouTube Tutorials & Online Resources** – For design references and feature integration
+* **Cursor AI** – Utilized for debugging the update functionality and signup flow
