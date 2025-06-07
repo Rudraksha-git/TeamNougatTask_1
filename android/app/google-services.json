@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "999193993825",
+    "project_id": "teamnougattask1",
+    "storage_bucket": "teamnougattask1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:999193993825:android:02e302803c08dc31750020",
+        "android_client_info": {
+          "package_name": "com.example.teamnougat_task_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRzT1vdqv_0vzW0viZ-of7cLMOrlhUAPY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
