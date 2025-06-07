@@ -14,8 +14,7 @@ sign-up page code is written in the main file.
 Then, I made the login page for authorization in a different file named login_page.
 Home page and its functions are added in home_page file.
 
-# I improved the UI by adding a pop-up table feature in the home page which increases readability
-# and replaced the logout button in profile icon of appbar.
+# I improved the UI by adding a pop-up table feature in the home page which increases readability and replaced the logout button in profile icon of appbar.
 
 # App description:
 
