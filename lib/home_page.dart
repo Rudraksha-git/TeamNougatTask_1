@@ -4,48 +4,46 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomePage extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class HomePageState extends State<HomePage> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _rollController = TextEditingController();
   final _branchController = TextEditingController();
   final _cgpaController = TextEditingController();
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  User? _currentUser;
-  List<Map<String, dynamic>> _studentEntries = [];
+
+  final _auth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
+  User? currentUser;
+  List<Map<String, dynamic>> studentEntries = [];
 
   @override
   void initState() {
     super.initState();
-    _currentUser = _auth.currentUser;
+    currentUser = _auth.currentUser;
   }
 
-  Future<void> _createEntry() async {
+  Future<void> createEntry() async {
     if (_formKey.currentState!.validate()) {
       try {
-        // Create a new document in the students collection
         await _firestore.collection('students').add({
           'name': _nameController.text,
           'rollNumber': _rollController.text,
           'branch': _branchController.text,
           'cgpa': double.parse(_cgpaController.text),
           'createdAt': FieldValue.serverTimestamp(),
-          'createdBy': _currentUser?.uid,
+          'createdBy': currentUser?.uid,
         });
 
-        _clearForm();
+        clearForm();
 
-        // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Student entry created successfully!')),
         );
 
-        // Show the entries in a popup
-        _showEntriesPopup();
+        showEntriesPopup();
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error creating entry: ${e.toString()}')),
@@ -54,7 +52,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _updateEntry() async {
+  Future<void> updateEntry() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -109,8 +107,8 @@ class _HomePageState extends State<HomePage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Student entry with roll no.: $rollNumberIdentifier updated successfully!')),
         );
-        _clearForm();
-        _showEntriesPopup();
+        clearForm();
+        showEntriesPopup();
       }
       else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -125,7 +123,7 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future<void> _deleteEntry() async {
+  Future<void> deleteEntry() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -138,7 +136,6 @@ class _HomePageState extends State<HomePage> {
     }
 
     try {
-      // First check if the student exists
       QuerySnapshot querySnapshot = await _firestore
           .collection('students')
           .where('rollNumber', isEqualTo: rollNumberIdentifier)
@@ -152,63 +149,57 @@ class _HomePageState extends State<HomePage> {
         return;
       }
 
-      // If student exists, show confirmation dialog
       final bool confirmDelete = await showDialog<bool>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text('Confirm Deletion'),
-            content: Text(
-                'Are you sure you want to delete the student with Roll No: $rollNumberIdentifier? This action cannot be undone.'),
-            actions: <Widget>[
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: Text('Delete'),
-              ),
-            ],
-          );
-        }
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Confirm Deletion'),
+              content: Text(
+                  'Are you sure you want to delete the student with Roll No: $rollNumberIdentifier? This action cannot be undone.'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  child: Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(true),
+                  child: Text('Delete'),
+                ),
+              ],
+            );
+          }
       ) ?? false;
 
       if (!confirmDelete) {
         return;
       }
 
-      // If confirmed, proceed with deletion
       String documentId = querySnapshot.docs.first.id;
       await _firestore.collection('students').doc(documentId).delete();
-      
-      // Show success message
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Student entry with roll no.: $rollNumberIdentifier deleted successfully!')),
       );
 
-      // Clear form and show updated table
-      _clearForm();
-      _showEntriesPopup();
+      clearForm();
+      showEntriesPopup();
 
     } catch (e) {
-      print('Error during deletion: $e'); // For debugging
+      print('Error during deletion: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error deleting entry: ${e.toString()}')),
       );
     }
   }
 
-  Future<void> _showEntriesPopup() async {
-    // Fetch all entries
+  Future<void> showEntriesPopup() async {
     QuerySnapshot querySnapshot = await _firestore.collection('students').get();
-    _studentEntries = querySnapshot.docs.map((doc) {
+    studentEntries = querySnapshot.docs.map((doc) {
       Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
       data['id'] = doc.id;
       return data;
     }).toList();
 
-    // Show popup with entries
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -285,7 +276,7 @@ class _HomePageState extends State<HomePage> {
                             ),
                           ),
                         ],
-                        rows: _studentEntries.map((entry) {
+                        rows: studentEntries.map((entry) {
                           return DataRow(
                             cells: [
                               DataCell(
@@ -327,7 +318,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> _signOut(BuildContext context) async {
+  Future<void> signOut(BuildContext context) async {
     try {
       await _auth.signOut();
       Navigator.pushReplacementNamed(context, '/login');
@@ -341,192 +332,189 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.amberAccent,
-        centerTitle: true,
-        title: Text('Student App', style: TextStyle(fontSize: 25)),
-        actions: [
-          if (_currentUser != null)
-            PopupMenuButton<String>(
-              icon: Icon(Icons.account_circle),
-              onSelected: (String result) {
-                if (result == 'logout') {
-                  _signOut(context);
-                }
-              },
-              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                PopupMenuItem<String>(
-                  enabled: false,
-                  child: Text(
-                    'Logged in as:\n${_currentUser!.email}',
-                    style: TextStyle(color: Colors.black54),
-                  ),
-                ),
-                const PopupMenuDivider(),
-                const PopupMenuItem<String>(
-                  value: 'logout',
-                  child: ListTile(
-                    leading: Icon(Icons.logout),
-                    title: Text('Logout'),
-                  ),
-                ),
-              ],
-            )
-          else
-            IconButton(
-              icon: Icon(Icons.login),
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, '/login');
-              },
-            ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              SizedBox(height: 60),
-              CircleAvatar(
-                radius: 110,
-                backgroundImage: AssetImage('assets/images/profileimg.jpg'),
-                backgroundColor: Colors.grey,
-              ),
-              SizedBox(height: 40),
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.person, color: Colors.blue),
-                  labelText: 'Name',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20.0),
-                  )
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter name';
+        appBar: AppBar(
+          backgroundColor: Colors.amberAccent,
+          centerTitle: true,
+          title: Text('Student App', style: TextStyle(fontSize: 25)),
+          actions: [
+            if (currentUser != null)
+              PopupMenuButton<String>(
+                icon: Icon(Icons.account_circle),
+                onSelected: (String result) {
+                  if (result == 'logout') {
+                    signOut(context);
                   }
-                  return null;
                 },
-              ),
-              SizedBox(height: 20),
-              TextFormField(
-                controller: _rollController,
-                decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.numbers, color: Colors.blue),
-                  labelText: 'Roll Number',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20.0),
-                  )
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter roll number';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-              TextFormField(
-                controller: _branchController,
-                decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.school, color: Colors.blue),
-                  labelText: 'Branch',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20.0),
-                  )
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter branch';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 20),
-              TextFormField(
-                controller: _cgpaController,
-                decoration: InputDecoration(
-                  prefixIcon: Icon(Icons.grade, color: Colors.blue),
-                  labelText: 'CGPA',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(20.0),
-                  )
-                ),
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter CGPA';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Please enter a valid number';
-                  }
-                  double cgpa = double.parse(value);
-                  if (cgpa < 0 || cgpa > 10) {
-                    return 'CGPA must be between 0 and 10';
-                  }
-                  return null;
-                },
-              ),
-              SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    onPressed: _createEntry,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
-                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                  PopupMenuItem<String>(
+                    enabled: false,
+                    child: Text(
+                      'Logged in as:\n${currentUser!.email}',
+                      style: TextStyle(color: Colors.black54),
                     ),
-                    child: Text('Create', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
-                  ElevatedButton(
-                    onPressed: _showEntriesPopup,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.amberAccent,
-                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                  const PopupMenuDivider(),
+                  const PopupMenuItem<String>(
+                    value: 'logout',
+                    child: ListTile(
+                      leading: Icon(Icons.logout),
+                      title: Text('Logout'),
                     ),
-                    child: Text('Read', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      _updateEntry();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                    ),
-                    child: Text('Update', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      _deleteEntry();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                    ),
-                    child: Text('Delete', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
                   ),
                 ],
               )
-            ],
-          ),
+            else
+              IconButton(
+                icon: Icon(Icons.login),
+                onPressed: () {
+                  Navigator.pushReplacementNamed(context, '/login');
+                },
+              ),
+          ],
+        ),
+        body: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  SizedBox(height: 60),
+                  CircleAvatar(
+                    radius: 110,
+                    backgroundImage: AssetImage('assets/images/profileimg.jpg'),
+                    backgroundColor: Colors.grey,
+                  ),
+                  SizedBox(height: 40),
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.person, color: Colors.blue),
+                        labelText: 'Name',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        )
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter name';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 20),
+                  TextFormField(
+                    controller: _rollController,
+                    decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.numbers, color: Colors.blue),
+                        labelText: 'Roll Number',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        )
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter roll number';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 20),
+                  TextFormField(
+                    controller: _branchController,
+                    decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.school, color: Colors.blue),
+                        labelText: 'Branch',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        )
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter branch';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 20),
+                  TextFormField(
+                    controller: _cgpaController,
+                    decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.grade, color: Colors.blue),
+                        labelText: 'CGPA',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        )
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter CGPA';
+                      }
+                      if (double.tryParse(value) == null) {
+                        return 'Please enter a valid number';
+                      }
+                      double cgpa = double.parse(value);
+                      if (cgpa < 0 || cgpa > 10) {
+                        return 'CGPA must be between 0 and 10';
+                      }
+                      return null;
+                    },
+                  ),
+                  SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton(
+                        onPressed: createEntry,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                        ),
+                        child: Text('Create', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
+                      ),
+                      ElevatedButton(
+                        onPressed: showEntriesPopup,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.amberAccent,
+                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                        ),
+                        child: Text('Read', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
+                      ),
+                      ElevatedButton(
+                        onPressed: updateEntry,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                        ),
+                        child: Text('Update', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
+                      ),
+                      ElevatedButton(
+                        onPressed: deleteEntry,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+                        ),
+                        child: Text('Delete', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            )
         )
-      )
     );
   }
 
-  void _clearForm() {
+  void clearForm() {
     _nameController.clear();
     _rollController.clear();
     _branchController.clear();
     _cgpaController.clear();
-    _formKey.currentState?.reset(); // Resets validation state
+    _formKey.currentState?.reset();
   }
+  
   @override
   void dispose() {
     _nameController.dispose();

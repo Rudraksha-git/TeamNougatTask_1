@@ -4,21 +4,22 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginPage extends StatefulWidget {
   @override
-  _LoginPageState createState() => _LoginPageState();
+  LoginPageState createState() => LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isLoading = false;
-  bool _obscurePassword = true;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final _auth = FirebaseAuth.instance;
 
-  Future<void> _login() async {
+  bool isLoading = false;
+  bool obscurePassword = true;
+
+  Future<void> login() async {
     if (_formKey.currentState!.validate()) {
       setState(() {
-        _isLoading = true;
+        isLoading = true;
       });
 
       try {
@@ -47,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
           email: _emailController.text.trim(),
           password: _passwordController.text,
         );
-        
+
         // Showing success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -55,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
             backgroundColor: Colors.green,
           ),
         );
-        
+
         // Navigate to home page after successful login
         Navigator.pushReplacementNamed(context, '/home');
       } on FirebaseAuthException catch (e) {
@@ -87,7 +88,7 @@ class _LoginPageState extends State<LoginPage> {
         );
       } finally {
         setState(() {
-          _isLoading = false;
+          isLoading = false;
         });
       }
     }
@@ -149,18 +150,18 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                        obscurePassword ? Icons.visibility : Icons.visibility_off,
                         color: Colors.blue,
                       ),
                       onPressed: () {
                         setState(() {
-                          _obscurePassword = !_obscurePassword;
+                          obscurePassword = !obscurePassword;
                         });
                       },
                     ),
                     errorStyle: TextStyle(color: Colors.red),
                   ),
-                  obscureText: _obscurePassword,
+                  obscureText: obscurePassword,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your password';
@@ -173,7 +174,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 SizedBox(height: 24),
                 ElevatedButton(
-                  onPressed: _isLoading ? null : _login,
+                  onPressed: isLoading ? null : login,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blue,
                     padding: EdgeInsets.symmetric(vertical: 16),
@@ -181,15 +182,15 @@ class _LoginPageState extends State<LoginPage> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
-                  child: _isLoading
+                  child: isLoading
                       ? SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        )
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  )
                       : Text('Login', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
                 ),
                 SizedBox(height: 40),
@@ -200,25 +201,25 @@ class _LoginPageState extends State<LoginPage> {
                   child: RichText(
                     textAlign: TextAlign.center,
                     text: TextSpan(
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.black,
-                      ),
-                      children: <TextSpan>[
-                        TextSpan(text: 'Don\'t have an account? '),
-                        TextSpan(
-                          text: 'SignUp',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue,
-                            decoration: TextDecoration.underline,
-                          ),
-                          recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              Navigator.pushReplacementNamed(context, '/signup');
-                            },
-                        )
-                      ]
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.black,
+                        ),
+                        children: <TextSpan>[
+                          TextSpan(text: 'Don\'t have an account? '),
+                          TextSpan(
+                            text: 'SignUp',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blue,
+                              decoration: TextDecoration.underline,
+                            ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () {
+                                Navigator.pushReplacementNamed(context, '/signup');
+                              },
+                          )
+                        ]
                     ),
                   ),
                 ),

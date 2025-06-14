@@ -5,16 +5,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/gestures.dart';
 import 'login_page.dart';
 import 'home_page.dart';
+import 'api.env.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options: const FirebaseOptions(
-      apiKey: "AIzaSyDRzT1vdqv_0vzW0viZ-of7cLMOrlhUAPY",
-      appId: "1:999193993825:android:02e302803c08dc31750020",
-      messagingSenderId: "999193993825",
-      projectId: "teamnougattask1",
-      storageBucket: "teamnougattask1.firebasestorage.app",
+    options: FirebaseOptions(
+      apiKey: ApiEnv.firebaseApiKey,
+      appId: ApiEnv.firebaseAppId,
+      messagingSenderId: ApiEnv.firebaseMessagingSenderId,
+      projectId: ApiEnv.firebaseProjectId,
+      storageBucket: ApiEnv.firebaseStorageBucket,
     ),
   );
   runApp(MyApp());
@@ -41,19 +42,21 @@ class MyApp extends StatelessWidget {
 
 class SignUpPage extends StatefulWidget {
   @override
-  _SignUpPageState createState() => _SignUpPageState();
+  SignUpPageState createState() => SignUpPageState();
 }
 
-class _SignUpPageState extends State<SignUpPage> {
+class SignUpPageState extends State<SignUpPage> {
+
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  bool _isLoading = false;
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final _auth = FirebaseAuth.instance;
+  final _firestore = FirebaseFirestore.instance;
 
-  Future<void> _signUp() async {
+  bool isLoading = false;
+
+  Future<void> signUp() async {
     if (_formKey.currentState!.validate()) {
       if (_passwordController.text != _confirmPasswordController.text) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -63,7 +66,7 @@ class _SignUpPageState extends State<SignUpPage> {
       }
 
       setState(() {
-        _isLoading = true;
+        isLoading = true;
       });
 
       try {
@@ -105,7 +108,7 @@ class _SignUpPageState extends State<SignUpPage> {
         );
       } finally {
         setState(() {
-          _isLoading = false;
+          isLoading = false;
         });
       }
     }
@@ -196,12 +199,12 @@ class _SignUpPageState extends State<SignUpPage> {
               ),
               SizedBox(height: 24),
               ElevatedButton(
-                onPressed: _isLoading ? null : _signUp,
+                onPressed: isLoading ? null : signUp,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.blue,
                   padding: EdgeInsets.symmetric(vertical: 16),
                 ),
-                child: _isLoading
+                child: isLoading
                     ? CircularProgressIndicator(color: Colors.white)
                     : Text('Sign Up', style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold)),
               ),
